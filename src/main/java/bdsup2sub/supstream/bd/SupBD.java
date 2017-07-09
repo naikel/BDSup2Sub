@@ -229,7 +229,7 @@ public class SupBD implements SubtitleStream {
                             }
                             subPictureBD = new SubPictureBD();
                             subPictures.add(subPictureBD);
-                            subPictureBD.setStartTime(segment.segmentPTSTimestamp);
+                            subPictureBD.setStartTime(ptsPCS);
                             logger.info("#> " + (subPictures.size()) + " (" + ptsToTimeStr(subPictureBD.getStartTime()) + ")\n");
 
                             so[0] = null;
@@ -267,11 +267,15 @@ public class SupBD implements SubtitleStream {
                             }
                             msg += " size: " + ToolBox.toHexLeftZeroPadded(segment.segmentSize, 4) + ", composition number: " + compositionNumber + ", forced: " + subPictureBD.isForced();
                             if (compositionNumber != compositionNumberOld) {
+
                                 so[0] = null;
+
                                 // store state to be able to revert to it
                                 picTmp = subPictureBD.deepCopy();
+
                                 // create new subPictureBD
                                 parsePCS(segment, subPictureBD, so);
+
                             }
                             if (so[0] != null) {
                                 msg += ", " + so[0];
@@ -285,7 +289,8 @@ public class SupBD implements SubtitleStream {
                         msg = "WDS offset: " + ToolBox.toHexLeftZeroPadded(index, 8) + ", size: " + ToolBox.toHexLeftZeroPadded(segment.segmentSize, 4);
                         if (subPictureBD != null) {
                             parseWDS(segment, subPictureBD);
-                            logger.trace(msg + ", dim: " + subPictureBD.getWindowWidth() + "*" + subPictureBD.getWindowHeight() + "\n");
+                            logger.trace(msg + ", dim: " + subPictureBD.getWindowWidth() + "*" + subPictureBD.getWindowHeight() +
+                                    ", x: " + subPictureBD.getXWindowOffset() + ", y: " + subPictureBD.getYWindowOffset() + "\n");
                         } else {
                             logger.trace(msg + "\n");
                             logger.warn("Missing PTS start -> ignored\n");
@@ -293,6 +298,7 @@ public class SupBD implements SubtitleStream {
                         break;
                     case 0x80: // END
                         logger.trace("END offset: " + ToolBox.toHexLeftZeroPadded(index, 8) + "\n");
+                        logger.trace("Image Objects: " + subPictureBD.getImageObjectList().size() + "\n");
                         // decide whether to store this last composition section as caption or merge it
                         if (compositionState == PGSCompositionState.EPOCH_START) {
                             if (compositionCount>0 && odsCounter>odsCounterOld && compositionNumber!=compositionNumberOld && picMergable(lastSubPicture, subPictureBD)) {
@@ -316,15 +322,29 @@ public class SupBD implements SubtitleStream {
 
                             if (compositionCount>0 && odsCounter>odsCounterOld && compositionNumber!=compositionNumberOld && !picMergable(picTmp, subPictureBD)) {
                                 // last PCS should be stored as separate caption
-                                if (odsCounter-odsCounterOld>1 || pdsCounter-pdsCounterOld>1) {
-                                    logger.warn("multiple PDS/ODS definitions: result may be erratic\n");
-                                }
+                                logger.warn("multiple PDS/ODS definitions: result may be erratic\n");
+
+                                // Modify subPictureBD to have only the last image (ODS)
+                                // This should be a loop creating subPictureBD objects
+                                /*
+                                ArrayList<ImageObject> tmp = new ArrayList();
+                                ImageObject imageObject = subPictureBD.getImageObject(subPictureBD.getImageObjectList().size() - 1);
+                                tmp.add(imageObject);
+                                subPictureBD.setImageObjectList(tmp);
+                                subPictureBD.setObjectID(0);
+                                */
+
                                 // replace subPictureBD with picTmp (deepCopy created before new PCS)
+                                logger.info("picTmp is frame #" + subPictures.size() + "\n");
+                                logger.info("picTmp compositions: " + picTmp.getCompositionObjects().size() + "\n");
+                                logger.info ("subPicture compositions: " + subPictureBD.getCompositionObjects().size() + "\n");
                                 subPictures.set(subPictures.size()-1, picTmp); // replace in list
                                 lastSubPicture = picTmp;
                                 subPictures.add(subPictureBD); // add to list
                                 logger.info("#< " + (subPictures.size()) + " (" + ptsToTimeStr(subPictureBD.getStartTime()) + ")\n");
-                                odsCounterOld = odsCounter;
+                                //odsCounterOld = odsCounter;
+
+                                picTmp = subPictureBD.deepCopy();
 
                             } else {
                                 if (subPictureBD != null) {
@@ -854,37 +874,46 @@ public class SupBD implements SubtitleStream {
                 int palID = buffer.getByte(index+9);	// 8bit  palette_id_ref
                 int coNum = buffer.getByte(index+10);	// 8bit  number_of_composition_objects (0..2)
                 if (coNum > 0) {
-                    // composition_object:
-                    int objID = buffer.getWord(index+11);	// 16bit object_id_ref
-                    msg[0] = "palID: "+palID+", objID: "+objID;
+                    msg[0] = "";
                     if (pic.getImageObjectList() == null) {
                         pic.setImageObjectList(new ArrayList<ImageObject>());
                     }
-                    ImageObject imgObj;
-                    if (objID >= pic.getImageObjectList().size()) {
-                        imgObj = new ImageObject();
-                        pic.getImageObjectList().add(imgObj);
-                    } else {
-                        imgObj = pic.getImageObject(objID);
-                    }
-                    imgObj.setPaletteID(palID);
-                    pic.setObjectID(objID);
 
-                    // skipped:  8bit  window_id_ref
-                    if (segment.segmentSize >= 0x13) {
-                        pic.setType(type);
-                        // object_cropped_flag: 0x80, forced_on_flag = 0x040, 6bit reserved
-                        int forcedCropped = buffer.getByte(index+14);
-                        pic.setCompNum(num);
-                        pic.setForced(( (forcedCropped & 0x40) == 0x40));
-                        imgObj.setXOffset(buffer.getWord(index + 15));   // composition_object_horizontal_position
-                        imgObj.setYOffset(buffer.getWord(index + 17));   // composition_object_vertical_position
-                        // if (object_cropped_flag==1)
-                        // 		16bit object_cropping_horizontal_position
-                        //		16bit object_cropping_vertical_position
-                        //		16bit object_cropping_width
-                        //		object_cropping_height
+                    ArrayList<Integer> compositionObjects = new ArrayList<Integer>();
+
+                    for (int c = 0; c < coNum; c++, index += 8) {
+                        // composition_object:
+                        int objID = buffer.getWord(index + 11);    // 16bit object_id_ref
+                        compositionObjects.add(objID);
+                        msg[0] += "palID: " + palID + ", objID: " + objID + " ";
+                        ImageObject imgObj;
+                        if (objID >= pic.getImageObjectList().size()) {
+                            imgObj = new ImageObject();
+                            pic.getImageObjectList().add(imgObj);
+                        } else {
+                            imgObj = pic.getImageObject(objID);
+                        }
+                        imgObj.setPaletteID(palID);
+                        pic.setObjectID(objID);
+
+                        // skipped:  8bit  window_id_ref
+                        if (segment.segmentSize >= 0x13) {
+                            pic.setType(type);
+                            // object_cropped_flag: 0x80, forced_on_flag = 0x040, 6bit reserved
+                            int forcedCropped = buffer.getByte(index + 14);
+                            pic.setCompNum(num);
+                            pic.setForced(((forcedCropped & 0x40) == 0x40));
+                            imgObj.setXOffset(buffer.getWord(index + 15));   // composition_object_horizontal_position
+                            imgObj.setYOffset(buffer.getWord(index + 17));   // composition_object_vertical_position
+                            msg[0] += "x: " + imgObj.getXOffset() + " y: " + imgObj.getYOffset() + " ";
+                            // if (object_cropped_flag==1)
+                            // 		16bit object_cropping_horizontal_position
+                            //		16bit object_cropping_vertical_position
+                            //		16bit object_cropping_width
+                            //		object_cropping_height
+                        }
                     }
+                    pic.setCompositionObjects(compositionObjects);
                 }
             }
 
@@ -903,13 +932,16 @@ public class SupBD implements SubtitleStream {
         int index = segment.offset;
         try {
             if (segment.segmentSize >= 10) {
-                // skipped:
-                // 8bit: number of windows (currently assumed 1, 0..2 is legal)
-                // 8bit: window id (0..1)
-                pic.setXWindowOffset(buffer.getWord(index + 2));	// window_horizontal_position
-                pic.setYWindowOffset(buffer.getWord(index + 4));	// window_vertical_position
-                pic.setWindowWidth(buffer.getWord(index + 6));	// window_width
-                pic.setWindowHeight(buffer.getWord(index + 8));	// window_height
+
+                int windowCount = buffer.getWord(index);
+                //for (int nextWindow = 0; nextWindow < windowCount; nextWindow++, index += 9) {
+                    // skipped:
+                    // 8bit: window id (0..1)
+                    pic.setXWindowOffset(buffer.getWord(index + 2));    // window_horizontal_position
+                    pic.setYWindowOffset(buffer.getWord(index + 4));    // window_vertical_position
+                    pic.setWindowWidth(buffer.getWord(index + 6));    // window_width
+                    pic.setWindowHeight(buffer.getWord(index + 8));    // window_height
+                //}
             }
         } catch (FileBufferException ex) {
             throw new CoreException(ex.getMessage());
@@ -924,6 +956,7 @@ public class SupBD implements SubtitleStream {
      * @throws CoreException
      */
     private Bitmap decodeImage(SubPictureBD pic, int transIdx) throws CoreException {
+
         int w = pic.getImageWidth();
         int h = pic.getImageHeight();
         // always decode image obj 0, start with first entry in fragment list
@@ -934,79 +967,96 @@ public class SupBD implements SubtitleStream {
             throw new CoreException("Subpicture too large: " + w + "x" + h + " at offset " + ToolBox.toHexLeftZeroPadded(startOfs, 8));
         }
 
+        if (pic.getImageObject().getFragmentList().size() > 1) {
+            logger.warn("There are " + pic.getImageObject().getFragmentList().size() + " fragments\n");
+        }
+
+        logger.info("There are " + pic.getImageObjectList().size() + " image objects. " +
+                       "Composition Objects: " + pic.getCompositionObjects().size() +"\n");
+
         Bitmap bm = new Bitmap(w, h, (byte)transIdx);
 
-        int b;
         int index = 0;
-        int ofs = 0;
-        int size;
-        int xpos = 0;
 
         try {
-            // just for multi-packet support, copy all of the image data in one common buffer
-            byte buf[] = new byte[pic.getImageObject().getBufferSize()];
-            index = 0;
-            for (int p = 0; p < pic.getImageObject().getFragmentList().size(); p++) {
-                // copy data of all packet to one common buffer
-                info = pic.getImageObject().getFragmentList().get(p);
-                for (int i=0; i < info.getImagePacketSize(); i++) {
-                    buf[index+i] = (byte)buffer.getByte(info.getImageBufferOfs()+i);
-                }
-                index += info.getImagePacketSize();
-            }
+            for (int image = 0; image < pic.getCompositionObjects().size(); image++) {
 
-            index = 0;
+                ImageObject imageObject = pic.getImageObject(pic.getCompositionObjects().get(image));
 
-            do {
-                b = buf[index++]&0xff;
-                if (b == 0) {
-                    b = buf[index++]&0xff;
-                    if (b == 0) {
-                        // next line
-                        ofs = (ofs/w)*w;
-                        if (xpos < w) {
-                            ofs+=w;
-                        }
-                        xpos = 0;
-                    } else {
-                        if ( (b & 0xC0) == 0x40) {
-                            // 00 4x xx -> xxx zeroes
-                            size = ((b-0x40)<<8)+(buf[index++]&0xff);
-                            for (int i=0; i < size; i++) {
-                                bm.getInternalBuffer()[ofs++] = 0; /*(byte)b;*/
-                            }
-                            xpos += size;
-                        } else if ((b & 0xC0) == 0x80) {
-                            // 00 8x yy -> x times value y
-                            size = (b-0x80);
-                            b = buf[index++]&0xff;
-                            for (int i=0; i<size; i++) {
-                                bm.getInternalBuffer()[ofs++] = (byte)b;
-                            }
-                            xpos += size;
-                        } else if  ((b & 0xC0) != 0) {
-                            // 00 cx yy zz -> xyy times value z
-                            size = ((b - 0xC0) << 8) + (buf[index++] & 0xff);
-                            b = buf[index++] & 0xff;
-                            for (int i=0; i < size; i++) {
-                                bm.getInternalBuffer()[ofs++] = (byte)b;
-                            }
-                            xpos += size;
-                        }  else {
-                            // 00 xx -> xx times 0
-                            for (int i=0; i < b; i++) {
-                                bm.getInternalBuffer()[ofs++] = 0;
-                            }
-                            xpos += b;
-                        }
+                // just for multi-packet support, copy all of the image data in one common buffer
+                byte buf[] = new byte[imageObject.getBufferSize()];
+                index = 0;
+                for (int p = 0; p < imageObject.getFragmentList().size(); p++) {
+                    // copy data of all packet to one common buffer
+                    info = imageObject.getFragmentList().get(p);
+                    for (int i = 0; i < info.getImagePacketSize(); i++) {
+                        buf[index + i] = (byte) buffer.getByte(info.getImageBufferOfs() + i);
                     }
-                } else {
-                    bm.getInternalBuffer()[ofs++] = (byte)b;
-                    xpos++;
+                    index += info.getImagePacketSize();
                 }
-            } while (index < buf.length);
 
+                int xImagePos = imageObject.getXOffset() - pic.getXOffset();
+                int yImagePos = imageObject.getYOffset() - pic.getYOffset();
+                int ofs = xImagePos + (yImagePos * imageObject.getWidth());
+                logger.info("Offset: " + ofs + "\n");
+
+                int b;
+                int size;
+                int xpos = 0;
+                index = 0;
+
+                do {
+                    b = buf[index++] & 0xff;
+                    if (b == 0) {
+                        b = buf[index++] & 0xff;
+                        if (b == 0) {
+                            // next line
+                            ofs = (ofs / w) * w;
+                            if (xpos < w) {
+                                ofs += w;
+                            }
+                            xpos = 0;
+                            ofs += xImagePos;
+                        } else {
+                            if ((b & 0xC0) == 0x40) {
+                                // 00 4x xx -> xxx zeroes
+                                size = ((b - 0x40) << 8) + (buf[index++] & 0xff);
+                                for (int i = 0; i < size; i++) {
+                                    bm.getInternalBuffer()[ofs++] = 0; /*(byte)b;*/
+                                }
+                                xpos += size;
+                            } else if ((b & 0xC0) == 0x80) {
+                                // 00 8x yy -> x times value y
+                                size = (b - 0x80);
+                                b = buf[index++] & 0xff;
+                                for (int i = 0; i < size; i++) {
+                                    bm.getInternalBuffer()[ofs++] = (byte) b;
+                                }
+                                xpos += size;
+                            } else if ((b & 0xC0) != 0) {
+                                // 00 cx yy zz -> xyy times value z
+                                size = ((b - 0xC0) << 8) + (buf[index++] & 0xff);
+                                b = buf[index++] & 0xff;
+                                for (int i = 0; i < size; i++) {
+                                    bm.getInternalBuffer()[ofs++] = (byte) b;
+                                }
+                                xpos += size;
+                            } else {
+                                // 00 xx -> xx times 0
+                                for (int i = 0; i < b; i++) {
+                                    bm.getInternalBuffer()[ofs++] = 0;
+                                }
+                                xpos += b;
+                            }
+                        }
+                    } else {
+                        bm.getInternalBuffer()[ofs++] = (byte) b;
+                        xpos++;
+                    }
+                } while (index < buf.length);
+            }
             return bm;
+
         } catch (FileBufferException ex) {
             throw new CoreException (ex.getMessage());
         } catch (ArrayIndexOutOfBoundsException ex) {
@@ -1060,8 +1110,10 @@ public class SupBD implements SubtitleStream {
                     imgObj.setBufferSize(info.getImagePacketSize());
                     imgObj.setHeight(height);
                     imgObj.setWidth(width);
+                    pic.calculateImageSize();
                     msg[0] = "ID: " + objID + ", update: " + objVer + ", seq: " + (first ? "first" : "")
-                        + ((first && last) ? "/" : "") + (last ? "" + "last" : "");
+                        + ((first && last) ? "/" : "") + (last ? "" + "last" : "") + ", x: " + imgObj.getXOffset()
+                        + " y: " + imgObj.getYOffset();
                     return true;
                 } else {
                     logger.warn("Invalid image size - ignored\n");

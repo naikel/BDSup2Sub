@@ -664,7 +664,7 @@ class MainFrameController {
                     + "Created by " + Constants.DEVELOPERS + "\n"
                     + "\n"
                     + "Built on " + Constants.BUILD_DATE + "\n"
-                    + "Copyright © 2009 Volker Oth, 2011-2012 Miklos Juhasz",
+                    + "Copyright © 2009 Volker Oth, 2011-2012 Miklos Juhasz, 2017 Naikel Aparicio",
                     Constants.APP_NAME,
                     JOptionPane.INFORMATION_MESSAGE,
                     new ImageIcon(getClass().getClassLoader().getResource("icon_32.png")));

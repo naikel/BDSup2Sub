@@ -57,6 +57,7 @@ class EditDialogView extends JDialog {
     private JSlider jSliderHorizontal;
     private JButton jButtonCancel;
     private JButton jButtonOk;
+    private JTextField jTextFieldJump;
     private JTextField jTextFieldX;
     private JTextField jTextFieldY;
     private JButton jButtonCenter;
@@ -192,22 +193,22 @@ class EditDialogView extends JDialog {
     private JPanel getJPanelUp() {
         if (jPanelUp == null) {
             GridBagConstraints gridBagButtonStorePrev = new GridBagConstraints();
-            gridBagButtonStorePrev.gridx = 1;
+            gridBagButtonStorePrev.gridx = 2;
             gridBagButtonStorePrev.gridy = 0;
             gridBagButtonStorePrev.anchor = GridBagConstraints.NORTHWEST;
             gridBagButtonStorePrev.insets = new Insets(2, 4, 2, 6);
             GridBagConstraints gridBagButtonStoreNext = new GridBagConstraints();
-            gridBagButtonStoreNext.gridx = 2;
+            gridBagButtonStoreNext.gridx = 3;
             gridBagButtonStoreNext.gridy = 0;
             gridBagButtonStoreNext.anchor = GridBagConstraints.NORTHWEST;
             gridBagButtonStoreNext.insets = new Insets(2, 4, 2, 12);
             GridBagConstraints gridBagButtonNext = new GridBagConstraints();
-            gridBagButtonNext.gridx = 4;
+            gridBagButtonNext.gridx = 5;
             gridBagButtonNext.anchor = GridBagConstraints.NORTHWEST;
             gridBagButtonNext.insets = new Insets(2, 4, 2, 6);
             gridBagButtonNext.gridy = 0;
             GridBagConstraints gridBagButtonPrev = new GridBagConstraints();
-            gridBagButtonPrev.gridx = 3;
+            gridBagButtonPrev.gridx = 4;
             gridBagButtonPrev.anchor = GridBagConstraints.NORTHWEST;
             gridBagButtonPrev.insets = new Insets(2, 4, 2, 4);
             gridBagButtonPrev.gridy = 0;
@@ -216,6 +217,16 @@ class EditDialogView extends JDialog {
             gridBagInfo.anchor = GridBagConstraints.WEST;
             gridBagInfo.insets = new Insets(4, 6, 0, 4);
             gridBagInfo.weighty = 1.0;
+
+            GridBagConstraints gridBagJump = new GridBagConstraints();
+            gridBagJump.fill = GridBagConstraints.NONE;
+            gridBagJump.gridy = 0;
+            gridBagJump.weightx = 6.0;
+            gridBagJump.anchor = GridBagConstraints.NORTHWEST;
+            gridBagJump.insets = new Insets(1, 0, 2, 0);
+            gridBagJump.weighty = 0.0;
+            gridBagJump.gridx = 1;
+
             jLabelInfo = new JLabel();
             jLabelInfo.setText("Info");
             jPanelUp = new JPanel();
@@ -224,6 +235,7 @@ class EditDialogView extends JDialog {
             jPanelUp.setLayout(new GridBagLayout());
 
             jPanelUp.add(jLabelInfo, gridBagInfo);
+            jPanelUp.add(getJTextFieldJump(), gridBagJump);
             jPanelUp.add(getJButtonPrev(), gridBagButtonPrev);
             jPanelUp.add(getJButtonNext(), gridBagButtonNext);
             jPanelUp.add(getJButtonStoreNext(), gridBagButtonStoreNext);
@@ -609,6 +621,37 @@ class EditDialogView extends JDialog {
     void addOkButtonActionListener(ActionListener actionListener) {
         jButtonOk.addActionListener(actionListener);
     }
+
+    private JTextField getJTextFieldJump() {
+        if (jTextFieldJump == null) {
+            jTextFieldJump = new JTextField();
+            jTextFieldJump.setPreferredSize(new Dimension(80, 20));
+            jTextFieldJump.setMinimumSize(new Dimension(80, 20));
+            jTextFieldJump.setToolTipText("Set X coordinate of upper left corner of subtitle");
+        }
+        return jTextFieldJump;
+    }
+
+    void addJumpTextFieldActionListener(ActionListener actionListener) {
+        jTextFieldJump.addActionListener(actionListener);
+    }
+
+    void addJumpTextFieldDocumentListener(DocumentListener documentListener) {
+        jTextFieldJump.getDocument().addDocumentListener(documentListener);
+    }
+
+    String getJumpTextFieldText() {
+        return jTextFieldJump.getText();
+    }
+
+    void setJumpTextFieldText(String text) {
+        jTextFieldJump.setText(text);
+    }
+
+    void setJumpTextFieldBackground(Color color) {
+        jTextFieldJump.setBackground(color);
+    }
+
 
     private JTextField getJTextFieldX() {
         if (jTextFieldX == null) {

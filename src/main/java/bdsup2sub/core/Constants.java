@@ -22,7 +22,7 @@ public class Constants {
     public static final String APP_NAME = ApplicationAttributes.getInstance().getName();
     public static final String APP_VERSION = ApplicationAttributes.getInstance().getVersion();
     public static final String BUILD_DATE = ApplicationAttributes.getInstance().getBuildDate();
-    public static final String DEVELOPERS = "Volker Oth, Miklos Juhasz";
+    public static final String DEVELOPERS = "Volker Oth, Miklos Juhasz, Naikel Aparicio";
 
     /** RED components of default DVD palette */
     public static final byte DEFAULT_PALETTE_RED[] = {

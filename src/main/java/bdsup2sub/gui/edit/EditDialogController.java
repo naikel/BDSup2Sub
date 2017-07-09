@@ -52,6 +52,8 @@ public class EditDialogController {
         view.addWindowListener(new EditDialogWindowListener());
         view.addPreviewPanelSelectListener(new PreviewPanelSelectListener());
 
+        view.addJumpTextFieldActionListener(new JumpTextFieldActionListener());
+        view.addJumpTextFieldDocumentListener(new JumpTextFieldDocumentListener());
         view.addPrevButtonActionListener(new PrevButtonActionListener());
         view.addNextButtonActionListener(new NextButtonActionListener());
         view.addVerticalSliderChangeListener(new VerticalSliderChangeListener());
@@ -189,6 +191,53 @@ public class EditDialogController {
                 store();
             }
             view.dispose();
+        }
+    }
+
+    private class JumpTextFieldActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            if (model.isReady()) {
+                try {
+                    int frame = Integer.parseInt(view.getJumpTextFieldText());
+                    if (frame > 0 && frame <= Core.getNumFrames()) {
+                        view.setIndex(frame - 1);
+                        setEdited(false);
+                    }
+                } catch (NumberFormatException e) {
+                    // Do nothing
+                }
+            }
+        }
+    }
+
+    private class JumpTextFieldDocumentListener implements DocumentListener {
+        @Override
+        public void insertUpdate(DocumentEvent event) {
+            check();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent event) {
+            check();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent event) {
+            check();
+        }
+
+        private void check() {
+            if (model.isReady()) {
+                try {
+                    int frame = Integer.parseInt(view.getJumpTextFieldText());
+                    if (frame > 0 && frame <= Core.getNumFrames()) {
+                        view.setIndex(frame - 1);
+                        setEdited(false);
+                    }
+                } catch (NumberFormatException e) {
+                    // Do nothing
+                }
+            }
         }
     }
 

@@ -40,6 +40,12 @@ public class SubPictureBD extends SubPicture implements Cloneable {
     /** list of (list of) palette info - there are up to 8 palettes per epoch, each can be updated several times */
     private ArrayList<ArrayList<PaletteInfo>> palettes;
 
+    private ArrayList<Integer> compositionObjects;
+
+    private int localWidth;
+    private int localHeight;
+    private int localXOffset;
+    private int localYOffset;
 
     @Override
     public SubPictureBD clone() {
@@ -78,22 +84,26 @@ public class SubPictureBD extends SubPicture implements Cloneable {
 
     @Override
     public int getImageWidth() {
-        return imageObjectList.get(objectID).getWidth();
+        // return imageObjectList.get(objectID).getWidth();
+        return localWidth;
     }
 
     @Override
     public int getImageHeight() {
-        return imageObjectList.get(objectID).getHeight();
+        // return imageObjectList.get(objectID).getHeight();
+        return localHeight;
     }
 
     @Override
     public int getXOffset() {
-        return imageObjectList.get(objectID).getXOffset();
+        // return imageObjectList.get(objectID).getXOffset();
+        return localXOffset;
     }
 
     @Override
     public int getYOffset() {
-        return imageObjectList.get(objectID).getYOffset();
+        //return imageObjectList.get(objectID).getYOffset();
+        return localYOffset;
     }
 
     /**
@@ -111,6 +121,10 @@ public class SubPictureBD extends SubPicture implements Cloneable {
      */
     ImageObject getImageObject() {
         return imageObjectList.get(objectID);
+    }
+
+    public int getObjectID() {
+        return this.objectID;
     }
 
     public void setObjectID(int objectID) {
@@ -141,6 +155,14 @@ public class SubPictureBD extends SubPicture implements Cloneable {
         this.windowHeight = windowHeight;
     }
 
+    public int getXWindowOffset() {
+        return this.xWindowOffset;
+    }
+
+    public int getYWindowOffset() {
+        return this.yWindowOffset;
+    }
+
     public void setXWindowOffset(int xWindowOffset) {
         this.xWindowOffset = xWindowOffset;
     }
@@ -163,5 +185,42 @@ public class SubPictureBD extends SubPicture implements Cloneable {
 
     public void setPalettes(ArrayList<ArrayList<PaletteInfo>> palettes) {
         this.palettes = palettes;
+    }
+
+    public ArrayList<Integer> getCompositionObjects() {
+        return compositionObjects;
+    }
+
+    public void setCompositionObjects(ArrayList<Integer> compositionObjects) {
+        this.compositionObjects = compositionObjects;
+        calculateImageSize();
+    }
+
+    public void calculateImageSize() {
+        int minX = -1;
+        int minY = -1;
+        int maxX = -1;
+        int maxY = -1;
+
+        for (int i = 0; i < getCompositionObjects().size(); i++) {
+            ImageObject imageObject = getImageObject(getCompositionObjects().get(i));
+
+            if (minX == -1 || imageObject.getXOffset() < minX)
+                minX = imageObject.getXOffset();
+
+            if (minY == -1 || imageObject.getYOffset() < minY)
+                minY = imageObject.getYOffset();
+
+            if (maxX == -1 || imageObject.getWidth() + imageObject.getXOffset() > maxX)
+                maxX = imageObject.getWidth() + imageObject.getXOffset();
+
+            if (maxY == -1 || imageObject.getHeight() + imageObject.getYOffset() > maxY)
+                maxY = imageObject.getHeight() + imageObject.getYOffset();
+        }
+
+        localWidth = maxX - minX;
+        localHeight = maxY - minY;
+        localXOffset = minX;
+        localYOffset = minY;
     }
 }
