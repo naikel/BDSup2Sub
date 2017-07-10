@@ -299,6 +299,7 @@ public class SupBD implements SubtitleStream {
                     case 0x80: // END
                         logger.trace("END offset: " + ToolBox.toHexLeftZeroPadded(index, 8) + "\n");
                         logger.trace("Image Objects: " + subPictureBD.getImageObjectList().size() + "\n");
+                        logger.trace("Composition State: " + compositionState + "\n");
                         // decide whether to store this last composition section as caption or merge it
                         if (compositionState == PGSCompositionState.EPOCH_START) {
                             if (compositionCount>0 && odsCounter>odsCounterOld && compositionNumber!=compositionNumberOld && picMergable(lastSubPicture, subPictureBD)) {
@@ -320,6 +321,9 @@ public class SupBD implements SubtitleStream {
                                 subPictureBD.setStartTime(ptsPCS);    // set for testing merge
                             }
 
+                            logger.trace("compositionCount: " + compositionCount + " compositionNumber: " + compositionNumber +
+                                            " compositionNumberOld: " + compositionNumberOld +
+                                            " odsCounter: "  + odsCounter + " odsCounterOld: " + odsCounterOld + "\n");
                             if (compositionCount>0 && odsCounter>odsCounterOld && compositionNumber!=compositionNumberOld && !picMergable(picTmp, subPictureBD)) {
                                 // last PCS should be stored as separate caption
                                 logger.warn("multiple PDS/ODS definitions: result may be erratic\n");
@@ -335,11 +339,17 @@ public class SupBD implements SubtitleStream {
                                 */
 
                                 // replace subPictureBD with picTmp (deepCopy created before new PCS)
-                                logger.info("picTmp is frame #" + subPictures.size() + "\n");
-                                logger.info("picTmp compositions: " + picTmp.getCompositionObjects().size() + "\n");
-                                logger.info ("subPicture compositions: " + subPictureBD.getCompositionObjects().size() + "\n");
+                                logger.trace("picTmp is frame #" + subPictures.size() + "\n");
+                                logger.trace("picTmp compositions: " + picTmp.getCompositionObjects().size() + "\n");
+                                logger.trace("subPicture compositions: " + subPictureBD.getCompositionObjects().size() + "\n");
                                 subPictures.set(subPictures.size()-1, picTmp); // replace in list
                                 lastSubPicture = picTmp;
+
+                                // fix end time stamp of previous subPictureBD if still missing
+                                if (lastSubPicture != null && lastSubPicture.getEndTime() == 0) {
+                                    lastSubPicture.setEndTime(subPictureBD.getStartTime());
+                                }
+
                                 subPictures.add(subPictureBD); // add to list
                                 logger.info("#< " + (subPictures.size()) + " (" + ptsToTimeStr(subPictureBD.getStartTime()) + ")\n");
                                 //odsCounterOld = odsCounter;
@@ -409,13 +419,17 @@ public class SupBD implements SubtitleStream {
     private static boolean picMergable(SubPictureBD a, SubPictureBD b) {
         boolean eq = false;
         if (a != null && b != null) {
-            if (a.getEndTime() == 0 || b.getStartTime() - a.getEndTime() < configuration.getMergePTSdiff()) {
-            ImageObject ao = a.getImageObject();
-            ImageObject bo = b.getImageObject();
-            if (ao != null && bo != null)
-                if (ao.getBufferSize() == bo.getBufferSize() && ao.getWidth() == bo.getWidth() && ao.getHeight() == bo.getHeight()) {
-                    eq = true;
-                }
+            if (a.getCompositionObjects().size() == b.getCompositionObjects().size() &&
+                    (a.getEndTime() == 0 || b.getStartTime() - a.getEndTime() < configuration.getMergePTSdiff())) {
+
+                // TODO: Compare composition objects in the list and compare each ImageObject in the SubPictureBD
+                // This is not enough!!!
+                ImageObject ao = a.getImageObject();
+                ImageObject bo = b.getImageObject();
+                if (ao != null && bo != null)
+                    if (ao.getBufferSize() == bo.getBufferSize() && ao.getWidth() == bo.getWidth() && ao.getHeight() == bo.getHeight()) {
+                        eq = true;
+                    }
             }
         }
         return eq;
@@ -971,7 +985,7 @@ public class SupBD implements SubtitleStream {
             logger.warn("There are " + pic.getImageObject().getFragmentList().size() + " fragments\n");
         }
 
-        logger.info("There are " + pic.getImageObjectList().size() + " image objects. " +
+        logger.trace("There are " + pic.getImageObjectList().size() + " image objects. " +
                        "Composition Objects: " + pic.getCompositionObjects().size() +"\n");
 
         Bitmap bm = new Bitmap(w, h, (byte)transIdx);
@@ -997,8 +1011,8 @@ public class SupBD implements SubtitleStream {
 
                 int xImagePos = imageObject.getXOffset() - pic.getXOffset();
                 int yImagePos = imageObject.getYOffset() - pic.getYOffset();
-                int ofs = xImagePos + (yImagePos * imageObject.getWidth());
-                logger.info("Offset: " + ofs + "\n");
+                int ofs = xImagePos + (yImagePos * w);
+                logger.trace("xImagePos: " + xImagePos + " yImagePos: " + yImagePos + " Offset: " + ofs + "\n");
 
                 int b;
                 int size;
