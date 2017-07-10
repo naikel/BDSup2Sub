@@ -159,7 +159,10 @@ class MainFrameController {
             OutputMode outputMode = model.getOutputMode();
             String path;
             try {
-                path = model.getSavePath() + File.separatorChar + model.getSaveFilename() + "_exp.";
+                String savePath = model.getSavePath();
+                if (savePath == null || savePath.isEmpty())
+                    savePath = model.getLoadPath();
+                path = savePath + File.separatorChar + model.getSaveFilename() + "."/*+ "_exp."*/;
                 if (outputMode == OutputMode.VOBSUB) {
                     path += "idx";
                 } else if (outputMode == OutputMode.SUPIFO) {
@@ -271,7 +274,7 @@ class MainFrameController {
                         model.setLoadPath(fname);
                         String loadPath = model.getLoadPath();
                         model.setSaveFilename(FilenameUtils.removeExtension(FilenameUtils.getName(loadPath)));
-                        model.setSavePath(FilenameUtils.getParent(loadPath));
+                        //model.setSavePath(FilenameUtils.getParent(loadPath));
                         view.enableCoreComponents(false);
                         view.enableVobsubBits(false);
                         try {

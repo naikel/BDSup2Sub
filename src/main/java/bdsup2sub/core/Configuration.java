@@ -86,7 +86,7 @@ public final class Configuration {
     private boolean keepFps;
 
     private static final int RECENT_FILE_COUNT = 5;
-    private static final String CONFIG_FILE = "bdsup2sup.ini";
+    private static final String CONFIG_FILE = "BDSup2SubEnhanced.ini";
     private static final Configuration INSTANCE = new Configuration();
     private final String configFilePath;
     private List<String> recentFiles;
@@ -278,6 +278,14 @@ public final class Configuration {
 
     public void setLoadPath(String loadPath) {
         props.set("loadPath", loadPath);
+    }
+
+    public String getSavePath() {
+        return props.get("savePath", "");
+    }
+
+    public void setSavePath(String savePath) {
+        props.set("savePath", savePath);
     }
 
     public String getColorProfilePath() {

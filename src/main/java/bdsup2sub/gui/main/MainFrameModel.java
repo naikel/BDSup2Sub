@@ -25,7 +25,6 @@ class MainFrameModel {
     private final Configuration configuration = Configuration.getInstance();
 
     private String saveFilename;
-    private String savePath;
     private int subIndex;
     private boolean sourceFileSpecifiedOnCmdLine;
 
@@ -38,11 +37,11 @@ class MainFrameModel {
     }
 
     public String getSavePath() {
-        return savePath;
+        return configuration.getSavePath();
     }
 
     public void setSavePath(String savePath) {
-        this.savePath = savePath;
+        configuration.setSavePath(savePath);
     }
 
     public String getSaveFilename() {
