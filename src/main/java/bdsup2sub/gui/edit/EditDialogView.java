@@ -48,6 +48,7 @@ class EditDialogView extends JDialog {
     private JPanel jPanelButtons;
     private JPanel jPanelCheck;
     private JLabel jLabelInfo;
+    private JLabel jLabelTotalFrame;
     private JButton jButtonPrev;
     private JButton jButtonNext;
     private JButton jButtonStoreNext;
@@ -193,49 +194,55 @@ class EditDialogView extends JDialog {
     private JPanel getJPanelUp() {
         if (jPanelUp == null) {
             GridBagConstraints gridBagButtonStorePrev = new GridBagConstraints();
-            gridBagButtonStorePrev.gridx = 2;
+            gridBagButtonStorePrev.gridx = 3;
             gridBagButtonStorePrev.gridy = 0;
             gridBagButtonStorePrev.anchor = GridBagConstraints.NORTHWEST;
             gridBagButtonStorePrev.insets = new Insets(2, 4, 2, 6);
             GridBagConstraints gridBagButtonStoreNext = new GridBagConstraints();
-            gridBagButtonStoreNext.gridx = 3;
+            gridBagButtonStoreNext.gridx = 4;
             gridBagButtonStoreNext.gridy = 0;
             gridBagButtonStoreNext.anchor = GridBagConstraints.NORTHWEST;
             gridBagButtonStoreNext.insets = new Insets(2, 4, 2, 12);
             GridBagConstraints gridBagButtonNext = new GridBagConstraints();
-            gridBagButtonNext.gridx = 5;
+            gridBagButtonNext.gridx = 6;
             gridBagButtonNext.anchor = GridBagConstraints.NORTHWEST;
             gridBagButtonNext.insets = new Insets(2, 4, 2, 6);
             gridBagButtonNext.gridy = 0;
             GridBagConstraints gridBagButtonPrev = new GridBagConstraints();
-            gridBagButtonPrev.gridx = 4;
+            gridBagButtonPrev.gridx = 5;
             gridBagButtonPrev.anchor = GridBagConstraints.NORTHWEST;
             gridBagButtonPrev.insets = new Insets(2, 4, 2, 4);
             gridBagButtonPrev.gridy = 0;
+
             GridBagConstraints gridBagInfo = new GridBagConstraints();
-            gridBagInfo.weightx = 1.0;
+            gridBagInfo.weightx = 0.0;
             gridBagInfo.anchor = GridBagConstraints.WEST;
             gridBagInfo.insets = new Insets(4, 6, 0, 4);
-            gridBagInfo.weighty = 1.0;
+            gridBagInfo.weighty = 0.0;
 
-            GridBagConstraints gridBagJump = new GridBagConstraints();
-            gridBagJump.fill = GridBagConstraints.NONE;
-            gridBagJump.gridy = 0;
-            gridBagJump.weightx = 6.0;
-            gridBagJump.anchor = GridBagConstraints.NORTHWEST;
-            gridBagJump.insets = new Insets(1, 0, 2, 0);
-            gridBagJump.weighty = 0.0;
-            gridBagJump.gridx = 1;
+            GridBagConstraints gridTotalFrames = new GridBagConstraints();
+            gridTotalFrames.gridy = 0;
+            gridTotalFrames.weightx = 1.0;
+            gridTotalFrames.anchor = GridBagConstraints.WEST;
+            gridTotalFrames.insets = new Insets(4, 6, 0, 4);
+            gridTotalFrames.weighty = 0.0;
+            gridTotalFrames.gridx = 2;
 
             jLabelInfo = new JLabel();
-            jLabelInfo.setText("Info");
+            jLabelInfo.setText("Frame");
+
+            jLabelTotalFrame = new JLabel();
+            jLabelTotalFrame.setText("Total");
+
             jPanelUp = new JPanel();
             jPanelUp.setPreferredSize(new Dimension(400, 25));
             jPanelUp.setMinimumSize(new Dimension(400, 25));
             jPanelUp.setLayout(new GridBagLayout());
 
             jPanelUp.add(jLabelInfo, gridBagInfo);
-            jPanelUp.add(getJTextFieldJump(), gridBagJump);
+            jPanelUp.add(getJTextFieldJump(), gridBagInfo);
+            jPanelUp.add(jLabelTotalFrame, gridTotalFrames);
+
             jPanelUp.add(getJButtonPrev(), gridBagButtonPrev);
             jPanelUp.add(getJButtonNext(), gridBagButtonNext);
             jPanelUp.add(getJButtonStoreNext(), gridBagButtonStoreNext);
@@ -625,9 +632,9 @@ class EditDialogView extends JDialog {
     private JTextField getJTextFieldJump() {
         if (jTextFieldJump == null) {
             jTextFieldJump = new JTextField();
-            jTextFieldJump.setPreferredSize(new Dimension(80, 20));
-            jTextFieldJump.setMinimumSize(new Dimension(80, 20));
-            jTextFieldJump.setToolTipText("Set X coordinate of upper left corner of subtitle");
+            jTextFieldJump.setPreferredSize(new Dimension(40, 20));
+            jTextFieldJump.setMinimumSize(new Dimension(40, 20));
+            jTextFieldJump.setToolTipText("Current frame");
         }
         return jTextFieldJump;
     }
@@ -1040,7 +1047,7 @@ class EditDialogView extends JDialog {
         JOptionPane.showMessageDialog(this, message, "Error!", JOptionPane.WARNING_MESSAGE);
     }
 
-    public void setIndex(int idx) {
+    public void setIndex(int idx, boolean updateJumpField) {
         model.setReady(false);
         model.setIndex(idx); //TODO: use the observer pattern to run this method when index changes in the model
         // get prev and next
@@ -1066,7 +1073,9 @@ class EditDialogView extends JDialog {
             jSliderVertical.setValue(subPic.getHeight() - subPic.getYOffset());
             model.setEnableSliders(true);
 
-            jLabelInfo.setText("Frame " + (idx+1) + " of " + Core.getNumFrames());
+            if (updateJumpField)
+                setJumpTextFieldText(String.valueOf(idx + 1));
+            jLabelTotalFrame.setText("of " + Core.getNumFrames());
             jTextFieldStart.setText(ptsToTimeStr(subPic.getStartTime()));
             jTextFieldEnd.setText(ptsToTimeStr(subPic.getEndTime()));
             jTextFieldDuration.setText(ToolBox.formatDouble((subPic.getEndTime() - subPic.getStartTime()) / 90.0));

@@ -110,27 +110,24 @@ public class EditDialogController {
     }
 
     private class PrevButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (model.getIndex() > 0) {
-                view.setIndex(model.getIndex() - 1);
+                view.setIndex(model.getIndex() - 1, true);
                 setEdited(false);
             }
         }
     }
 
     private class NextButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (model.getIndex() < Core.getNumFrames() - 1) {
-                view.setIndex(model.getIndex() + 1);
+                view.setIndex(model.getIndex() + 1, true);
                 setEdited(false);
             }
         }
     }
 
     private class VerticalSliderChangeListener implements ChangeListener {
-        @Override
         public void stateChanged(ChangeEvent event) {
             if (model.isEnableSliders()) {
                 SubPicture subPic = model.getSubPic();
@@ -154,7 +151,6 @@ public class EditDialogController {
         }
     }
     private class HorizontalSliderChangeListener implements ChangeListener {
-        @Override
         public void stateChanged(ChangeEvent event) {
             if (model.isEnableSliders()) {
                 SubPicture subPic = model.getSubPic();
@@ -178,14 +174,12 @@ public class EditDialogController {
     }
 
     private class CancelButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             view.dispose();
         }
     }
 
     private class OkButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (model.isEdited()) {
                 store();
@@ -200,7 +194,7 @@ public class EditDialogController {
                 try {
                     int frame = Integer.parseInt(view.getJumpTextFieldText());
                     if (frame > 0 && frame <= Core.getNumFrames()) {
-                        view.setIndex(frame - 1);
+                        view.setIndex(frame - 1, false);
                         setEdited(false);
                     }
                 } catch (NumberFormatException e) {
@@ -211,17 +205,14 @@ public class EditDialogController {
     }
 
     private class JumpTextFieldDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -231,7 +222,7 @@ public class EditDialogController {
                 try {
                     int frame = Integer.parseInt(view.getJumpTextFieldText());
                     if (frame > 0 && frame <= Core.getNumFrames()) {
-                        view.setIndex(frame - 1);
+                        view.setIndex(frame - 1, false);
                         setEdited(false);
                     }
                 } catch (NumberFormatException e) {
@@ -242,7 +233,6 @@ public class EditDialogController {
     }
 
     private class XTextFieldActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (model.isReady()) {
                 SubPicture subPic = model.getSubPic();
@@ -271,17 +261,14 @@ public class EditDialogController {
     }
 
     private class XTextFieldDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -309,7 +296,6 @@ public class EditDialogController {
     }
 
     private class YTextFieldActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             int y = ToolBox.getInt(view.getYTextFieldText());
@@ -335,17 +321,14 @@ public class EditDialogController {
     }
 
     private class YTextFieldDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -373,7 +356,6 @@ public class EditDialogController {
     }
 
     private class CenterButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             subPic.setOfsX((subPic.getWidth() -subPic.getImageWidth())/2);
@@ -388,7 +370,6 @@ public class EditDialogController {
     }
 
     private class StartTextFieldActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (model.isReady()) {
                 model.setReady(false);
@@ -414,17 +395,14 @@ public class EditDialogController {
     }
 
     private class StartTextFieldDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -452,7 +430,6 @@ public class EditDialogController {
     }
 
     private class EndTextFieldActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (model.isReady()) {
                 model.setReady(false);
@@ -479,17 +456,14 @@ public class EditDialogController {
     }
 
     private class EndTextFieldDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -517,7 +491,6 @@ public class EditDialogController {
     }
 
     private class DurationTextFieldActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
         if (model.isReady()) {
             model.setReady(false);
@@ -544,17 +517,14 @@ public class EditDialogController {
     }
 
     private class DurationTextFieldDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -588,7 +558,6 @@ public class EditDialogController {
     }
 
     private class MinButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             long t = model.getMinTimePTS();
@@ -607,7 +576,6 @@ public class EditDialogController {
     }
 
     private class MaxButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             SubPicture subPicNext = model.getSubPicNext();
@@ -625,7 +593,6 @@ public class EditDialogController {
     }
 
     private class TopButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             int cineH = subPic.getHeight() *5/42;
@@ -648,7 +615,6 @@ public class EditDialogController {
     }
 
     private class BottomButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             int cineH = subPic.getHeight() *5/42;
@@ -668,7 +634,6 @@ public class EditDialogController {
     }
 
     private class StoreButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             store();
             setEdited(false);
@@ -676,7 +641,6 @@ public class EditDialogController {
     }
 
     private class ForcedCheckBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             model.getSubPic().setForced(view.isForcedCheckBoxSelected());
             setEdited(true);
@@ -684,7 +648,6 @@ public class EditDialogController {
     }
 
     private class ExcludeCheckBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             subPic.setExcluded(view.isExcludeCheckBoxSelected());
@@ -695,7 +658,6 @@ public class EditDialogController {
     }
     
     private class AddPatchButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             int sel[] = view.getPreviewPanelSelection();
@@ -721,7 +683,6 @@ public class EditDialogController {
     }
 
     private class UndoPatchButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             if (subPic.getErasePatch() != null && subPic.getErasePatch().size() > 0) {
@@ -740,7 +701,6 @@ public class EditDialogController {
     }
 
     private class UndoAllPatchesButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             SubPicture subPic = model.getSubPic();
             if (subPic.getErasePatch() != null) {
@@ -757,33 +717,30 @@ public class EditDialogController {
     }
 
     private class StoreNextButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (model.isEdited()) {
                 store();
             }
             if (model.getIndex() < Core.getNumFrames()-1) {
-                view.setIndex(model.getIndex() + 1);
+                view.setIndex(model.getIndex() + 1, true);
                 setEdited(false);
             }
         }
     }
 
     private class StorePrevButtonActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (model.isEdited()) {
                 store();
             }
             if (model.getIndex() > 0) {
-                view.setIndex(model.getIndex() - 1);
+                view.setIndex(model.getIndex() - 1, true);
                 setEdited(false);
             }
         }
     }
 
     private class PreviewPanelSelectListener implements SelectListener {
-        @Override
         public void selectionPerformed(boolean validSelection) {
             view.setAddPatchButtonEnabled(validSelection);
         }

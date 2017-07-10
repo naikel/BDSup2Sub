@@ -126,7 +126,6 @@ class MainFrameController {
     }
 
     private class LoadMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             String[] extension = new String[] {"idx", "ifo", "sub", "sup", "xml"};
             view.setConsoleText("");
@@ -142,7 +141,6 @@ class MainFrameController {
     }
 
     private class RecentMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             view.setConsoleText("");
             final String fname = event.getActionCommand();
@@ -155,7 +153,7 @@ class MainFrameController {
     }
 
     private class SaveMenuItemActionListener implements ActionListener {
-        @Override
+        @SuppressWarnings("Since15")
         public void actionPerformed(ActionEvent event) {
             boolean showException = true;
             OutputMode outputMode = model.getOutputMode();
@@ -219,14 +217,12 @@ class MainFrameController {
     }
 
     private class CloseMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             Core.close();
             view.closeSub();
         }
     }
     private class QuitMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             view.exit(0);
         }
@@ -235,13 +231,12 @@ class MainFrameController {
 
     private class DragAndDropTransferHandler extends TransferHandler {
 
-        @Override
+        @SuppressWarnings("Since15")
         public boolean canImport(TransferSupport support) {
             return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
         }
 
-        @SuppressWarnings("unchecked")
-        @Override
+        @SuppressWarnings("Since15")
         public boolean importData(TransferSupport support) {
             if (!canImport(support)) {
                 return false;
@@ -339,7 +334,6 @@ class MainFrameController {
     }
 
     private class EditFrameMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 EditDialog ed = new EditDialog(view);
@@ -370,7 +364,6 @@ class MainFrameController {
     }
 
     private class EditDefaultDvdPaletteMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             final String colorNames[] = {
                     "white","light gray","dark gray",
@@ -421,7 +414,6 @@ class MainFrameController {
     }
 
     private class EditImportedDvdPaletteMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             final String colorNames[] = {
                     "Color 0", "Color 1", "Color 2", "Color 3",
@@ -472,7 +464,6 @@ class MainFrameController {
     }
 
     private class EditDvdFramePaletteMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             FramePaletteDialog framePaletteDialog = new FramePaletteDialog(view, model.getSubIndex());
             framePaletteDialog.setVisible(true);
@@ -502,7 +493,6 @@ class MainFrameController {
     }
 
     private class MoveAllMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 MoveDialog moveDialog = new MoveDialog(view);
@@ -544,7 +534,6 @@ class MainFrameController {
     }
 
     private class ResetCropOffsetMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             model.setCropOffsetY(0);
             view.setLayoutPaneCropOffsetY(model.getCropOffsetY());
@@ -553,7 +542,6 @@ class MainFrameController {
     }
 
     private class ConversionSettingsMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             final Resolution rOld = model.getOutputResolution();
             final double fpsTrgOld = model.getFPSTrg();
@@ -600,7 +588,6 @@ class MainFrameController {
     }
 
     private class SwapCrCbMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             boolean selected = view.isSwapCrCbSelected();
             model.setSwapCrCb(selected);
@@ -630,7 +617,6 @@ class MainFrameController {
     }
 
     private class FixInvisibleFramesMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             boolean selected = view.isFixInvisibleFramesSelected();
             model.setFixZeroAlpha(selected);
@@ -638,7 +624,6 @@ class MainFrameController {
     }
 
     private class VerboseOutputMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             boolean selected = view.isVerboseOutputSelected();
             model.setVerbose(selected);
@@ -646,7 +631,7 @@ class MainFrameController {
     }
 
     private class HelpMenuItemActionListener implements ActionListener {
-        @Override
+        @SuppressWarnings("Since15")
         public void actionPerformed(ActionEvent event) {
             try {
                 Desktop.getDesktop().browse(URI.create("http://github.com/mjuhasz/BDSup2Sub/wiki"));
@@ -657,7 +642,6 @@ class MainFrameController {
     }
 
     private class AboutMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             JOptionPane.showMessageDialog(view,
                     Constants.APP_NAME + " v" + Constants.APP_VERSION + "\n"
@@ -672,7 +656,6 @@ class MainFrameController {
     }
 
     private class SubNumComboBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 int num = Core.getNumFrames();
@@ -716,17 +699,14 @@ class MainFrameController {
     }
 
     private class SubNumComboBoxDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -764,7 +744,6 @@ class MainFrameController {
     }
 
     private class AlphaThresholdComboBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 int idx;
@@ -806,17 +785,14 @@ class MainFrameController {
     }
 
     private class AlphaThresholdComboBoxDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -852,7 +828,6 @@ class MainFrameController {
     }
 
     private class MedLowThresholdComboBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 int lumThr[] = model.getLuminanceThreshold();
@@ -903,17 +878,14 @@ class MainFrameController {
     }
 
     private class MedLowThresholdComboBoxDocumentListener implements  DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -950,7 +922,6 @@ class MainFrameController {
     }
 
     private class HiMedThresholdComboBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 int lumThr[] = model.getLuminanceThreshold();
@@ -999,17 +970,14 @@ class MainFrameController {
     }
 
     private class HiMedThresholdComboBoxDocumentListener implements DocumentListener {
-        @Override
         public void insertUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void changedUpdate(DocumentEvent event) {
             check();
         }
 
-        @Override
         public void removeUpdate(DocumentEvent event) {
             check();
         }
@@ -1046,7 +1014,6 @@ class MainFrameController {
     }
 
     private class OutputFormatComboBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 int idx = view.getOutputFormatComboBoxSelectedIndex();
@@ -1085,7 +1052,6 @@ class MainFrameController {
     }
 
     private class PaletteComboBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 int idx = view.getPaletteComboBoxSelectedIndex();
@@ -1121,7 +1087,6 @@ class MainFrameController {
     }
 
     private class FilterComboBoxActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (Core.isReady()) {
                 int idx = view.getFilterComboBoxSelectedIndex();
@@ -1155,7 +1120,6 @@ class MainFrameController {
     }
 
     private class CopyPopupMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             String s = view.getConsoleSelectedText();
             try {
@@ -1170,7 +1134,6 @@ class MainFrameController {
     }
 
     private class ClearPopupMenuItemActionListener implements ActionListener {
-        @Override
         public void actionPerformed(ActionEvent event) {
             view.setConsoleText("");
         }

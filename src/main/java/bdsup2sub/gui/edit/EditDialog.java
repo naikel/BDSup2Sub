@@ -39,6 +39,6 @@ public class EditDialog {
 
     //FIXME: remove this method created while making the mvc transition
     public void setIndex(int index) {
-        view.setIndex(index);
+        view.setIndex(index, true);
     }
 }

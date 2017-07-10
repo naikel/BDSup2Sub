@@ -53,6 +53,7 @@ Author
 ------
 
 BDSup2Sub Enhanced is developed by Naikel Aparicio
+
 Original BDSup2Sub was originally created by Volker Oth (2009) and currently maintained and developed by Miklos Juhasz
 
 More information
