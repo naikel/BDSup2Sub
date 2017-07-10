@@ -1012,7 +1012,10 @@ public class SupBD implements SubtitleStream {
                 int xImagePos = imageObject.getXOffset() - pic.getXOffset();
                 int yImagePos = imageObject.getYOffset() - pic.getYOffset();
                 int ofs = xImagePos + (yImagePos * w);
-                logger.trace("xImagePos: " + xImagePos + " yImagePos: " + yImagePos + " Offset: " + ofs + "\n");
+                logger.trace("xImagePos: " + xImagePos + " yImagePos: " + yImagePos +
+                                " Width: " + imageObject.getWidth() + " Height: " + imageObject.getHeight() +
+                                " Offset: " + ofs + "\n");
+                logger.trace("BM Width: " + w + " Height: " + h + "\n");
 
                 int b;
                 int size;
@@ -1029,42 +1032,43 @@ public class SupBD implements SubtitleStream {
                             if (xpos < w) {
                                 ofs += w;
                             }
-                            xpos = 0;
+                            xpos = xImagePos;
                             ofs += xImagePos;
                         } else {
                             if ((b & 0xC0) == 0x40) {
                                 // 00 4x xx -> xxx zeroes
                                 size = ((b - 0x40) << 8) + (buf[index++] & 0xff);
-                                for (int i = 0; i < size; i++) {
-                                    bm.getInternalBuffer()[ofs++] = 0; /*(byte)b;*/
+                                for (int i = 0; i < size; i++, xpos++) {
+                                    if (xpos < w)
+                                        bm.getInternalBuffer()[ofs++] = 0; /*(byte)b;*/
                                 }
-                                xpos += size;
                             } else if ((b & 0xC0) == 0x80) {
                                 // 00 8x yy -> x times value y
                                 size = (b - 0x80);
                                 b = buf[index++] & 0xff;
-                                for (int i = 0; i < size; i++) {
-                                    bm.getInternalBuffer()[ofs++] = (byte) b;
+                                for (int i = 0; i < size; i++, xpos++) {
+                                    if (xpos < w)
+                                        bm.getInternalBuffer()[ofs++] = (byte) b;
                                 }
-                                xpos += size;
                             } else if ((b & 0xC0) != 0) {
                                 // 00 cx yy zz -> xyy times value z
                                 size = ((b - 0xC0) << 8) + (buf[index++] & 0xff);
                                 b = buf[index++] & 0xff;
-                                for (int i = 0; i < size; i++) {
-                                    bm.getInternalBuffer()[ofs++] = (byte) b;
+                                for (int i = 0; i < size; i++, xpos++) {
+                                    if (xpos < w)
+                                        bm.getInternalBuffer()[ofs++] = (byte) b;
                                 }
-                                xpos += size;
                             } else {
                                 // 00 xx -> xx times 0
-                                for (int i = 0; i < b; i++) {
-                                    bm.getInternalBuffer()[ofs++] = 0;
+                                for (int i = 0; i < b; i++, xpos++) {
+                                    if (xpos < w)
+                                        bm.getInternalBuffer()[ofs++] = 0;
                                 }
-                                xpos += b;
                             }
                         }
                     } else {
-                        bm.getInternalBuffer()[ofs++] = (byte) b;
+                        if (xpos < w)
+                            bm.getInternalBuffer()[ofs++] = (byte) b;
                         xpos++;
                     }
                 } while (index < buf.length);
@@ -1127,7 +1131,7 @@ public class SupBD implements SubtitleStream {
                     pic.calculateImageSize();
                     msg[0] = "ID: " + objID + ", update: " + objVer + ", seq: " + (first ? "first" : "")
                         + ((first && last) ? "/" : "") + (last ? "" + "last" : "") + ", x: " + imgObj.getXOffset()
-                        + " y: " + imgObj.getYOffset();
+                        + ", y: " + imgObj.getYOffset() + ", w: " + width + ", h: " + height;
                     return true;
                 } else {
                     logger.warn("Invalid image size - ignored\n");
