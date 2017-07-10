@@ -1,10 +1,17 @@
-BDSup2Sub
-=========
+BDSup2Sub Enhanced
+==================
 
 A tool to convert and tweak bitmap based subtitle streams
 ---------------------------------------------------------
 
 BDSup2Sub is a tool initially created to convert captions demuxed from a Blu-Ray transport stream (M2TS) into the DVD VobSub format (SUB/IDX) used by many DVD authoring tools - hence the name. Many more features were added over time as was support for other formats. So in the meantime the name seems a little inappropriate. In a nutshell, it's a subtitle conversion tool for image based stream formats with scaling capabilities and some other nice features.
+
+BDSup2Sub Enhanced is based on BDSup2Sub v5.0.0 which is the most stable of all the BDSup2Sub releases.
+
+Enhanced Features
+-----------------
+
+* Support of composition objects in Blu-Ray SUP streams. This is when two or more subtitles are shown at the same time.
 
 Supported Formats
 -----------------
@@ -45,7 +52,8 @@ BDSup2Sub only supports image based subtitle streams. It doesn't (and probably w
 Author
 ------
 
-Originally created by Volker Oth (2009); currently maintained and developed by Miklos Juhasz
+BDSup2Sub Enhanced is developed by Naikel Aparicio
+Original BDSup2Sub was originally created by Volker Oth (2009) and currently maintained and developed by Miklos Juhasz
 
 More information
 ----------------

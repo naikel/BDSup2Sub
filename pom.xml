@@ -5,8 +5,8 @@
     <artifactId>bdsup2sub</artifactId>
     <packaging>jar</packaging>
 
-    <name>BDSup2Sub</name>
-    <version>5.0.0</version>
+    <name>BDSup2Sub Enhanced</name>
+    <version>0.0.9</version>
     <url>https://github.com/mjuhasz/BDSup2Sub</url>
 
     <properties>
